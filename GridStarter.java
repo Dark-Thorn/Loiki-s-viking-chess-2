@@ -1,10 +1,15 @@
 //Name: Griffin Tattongeyer
 //Date: 2025, may 29 - june
 //Purpose: to run Viking chess
+import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.applet.Applet;
+import java.applet.*;
+import sun.audio.*;
+import java.io.FileInputStream.*;
+import java.io.File;
 public class GridStarter extends Applet implements ActionListener
 {
     //For screens
@@ -29,70 +34,107 @@ public class GridStarter extends Applet implements ActionListener
 	    {7, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 7},
 	    {7, 5, 0, 0, 3, 3, 3, 3, 3, 0, 0, 5, 7},
 	    {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}};
+    //reset aray
+    int br[] [] = {{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
+	    {7, 5, 0, 0, 3, 3, 3, 3, 3, 0, 0, 5, 7},
+	    {7, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 7},
+	    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7},
+	    {7, 3, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 7},
+	    {7, 3, 0, 0, 0, 2, 2, 2, 0, 0, 0, 3, 7},
+	    {7, 3, 3, 0, 2, 2, 4, 2, 2, 0, 3, 3, 7},
+	    {7, 3, 0, 0, 0, 2, 2, 2, 0, 0, 0, 3, 7},
+	    {7, 3, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 7},
+	    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7},
+	    {7, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 7},
+	    {7, 5, 0, 0, 3, 3, 3, 3, 3, 0, 0, 5, 7},
+	    {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}};
     JButton pics[] = new JButton [row * col];
-    int sqDimension = 25;
-    String picStart = "c";
-    String picFileType = ".png";
+    int sqDimension = 27; //27
     JLabel turnpic;
-    int turn = 1;
+    int turn = 3;
     int px, py;
+    boolean kingmove = false;
+    AudioClip soundFile;
 
-    //Settings
-    JTextField choice, name, first;
+    JButton save;
+    Panel grid;
+    //save vars
+    PrintWriter out;
+    BufferedReader in;
+
+    //opening
+    int titleVar = 0;
+    JButton next;
 
     //Formatting
-    Color backgroundColour = Color.white;
-    Color buttonColour = Color.lightGray;
-    Color buttonText = Color.black;
-    Color titleColour = Color.black;
+    Color backgroundColour = new Color (25, 86, 45);
+    Color buttonColour = new Color (23, 113, 43);
+    Color buttonText = new Color (253, 221, 9);
+    Color titleColour = new Color (253, 221, 9);
     Font titleFont = new Font ("Arial", Font.PLAIN, 30);
     Font promptFont = new Font ("Arial", Font.PLAIN, 20);
-    Dimension boardSquare = new Dimension (96, 96);
+    Dimension boardSquare = new Dimension (96, 96); //still not shure what this does
+    String picStart = "c";
+    String picFileType = ".png";
 
     public void init ()
     {
 	p_card = new Panel ();
 	p_card.setLayout (cdLayout);
-	//TO DO: Bring back in when you are ready to work on other screens
-	//opening ();
-	//instructions ();
-	//settings ();
+	opening ();
+	instructions ();
 	gameScreen ();
 	resize (350, 500);
 	setLayout (new BorderLayout ());
 	add ("Center", p_card);
+	try
+	{ //lodes the save into memory
+	    in = new BufferedReader (new FileReader ("LokisSave.txt"));
+	    for (int i = 0 ; i < row ; i++)
+	    {
+		for (int j = 0 ; j < col ; j++)
+		{
+		    b [i] [j] = Integer.parseInt (in.readLine ()); //throws an aray out of bounds error ask ms. Gorski
+		}
+	    }
+	    turn = Integer.parseInt (in.readLine ());
+	    in.close ();
+	}
+	catch (IOException e)
+	{
+	}
+	redraw ();
+	turnpic.setIcon (createImageIcon ("c" + turn + ".png"));
+
     }
 
 
     public void opening ()
-    { //TO DO: Fill this comment in
+    { //code for the opning
 	card1 = new Panel ();
 	card1.setBackground (backgroundColour);
-	JLabel title = new JLabel ("Welcome to Tic Tac Toe!");
-	title.setFont (new Font ("Arial", Font.PLAIN, 30));
-	title.setForeground (titleColour);
-	JButton next = new JButton ("Enter");
-	next.setPreferredSize (new Dimension (300, 50));
+	next = new JButton (createImageIcon ("loiki1.png"));
 	next.setActionCommand ("s2");
 	next.addActionListener (this);
 	next.setBackground (buttonColour);
 	next.setForeground (buttonText);
-	card1.add (title);
+	next.setBorder (null);
 	card1.add (next);
 	p_card.add ("1", card1);
     }
 
 
     public void instructions ()
-    { //TO DO: Fill this comment in
+    { //sets up the instruction screen
 	card2 = new Panel ();
 	card2.setBackground (backgroundColour);
-	JLabel title = new JLabel ("The Instructions");
+	JLabel title = new JLabel ("Welcome To Viking Chess");
 	title.setFont (titleFont);
 	title.setForeground (titleColour);
+	JLabel instruct = new JLabel (createImageIcon ("instructions.png"));
 	Panel p = new Panel ();
-	JButton settings = new JButton ("Settings");
-	settings.setActionCommand ("s3");
+	JButton settings = new JButton ("Clear Save");
+	settings.setActionCommand ("clearSave");
 	settings.addActionListener (this);
 	settings.setPreferredSize (new Dimension (150, 50));
 	settings.setBackground (buttonColour);
@@ -105,6 +147,7 @@ public class GridStarter extends Applet implements ActionListener
 	gameScreen.setForeground (buttonText);
 
 	card2.add (title);
+	card2.add (instruct);
 	p.add (settings);
 	p.add (gameScreen);
 	card2.add (p);
@@ -112,55 +155,11 @@ public class GridStarter extends Applet implements ActionListener
     }
 
 
-    public void settings ()
-    { //TO DO: Fill this comment in
-	card3 = new Panel ();
-	card3.setBackground (backgroundColour);
-	JLabel title = new JLabel ("Choose your settings:");
-	title.setFont (titleFont);
-	title.setForeground (titleColour);
-	Panel p = new Panel ();
-	JLabel namePmt = new JLabel ("Your name:");
-	namePmt.setFont (promptFont);
-	name = new JTextField (10);
-	name.setFont (promptFont);
-	Panel p2 = new Panel ();
-	JLabel choicePmt = new JLabel ("X or O:");
-	choicePmt.setFont (promptFont);
-	choice = new JTextField (4);
-	choice.setFont (promptFont);
-	Panel p3 = new Panel ();
-	JLabel firstPmt = new JLabel ("Go first? y or n?");
-	firstPmt.setFont (promptFont);
-	first = new JTextField (4);
-	first.setFont (promptFont);
-	JButton entrance = new JButton ("To the game");
-	entrance.setActionCommand ("s4");
-	entrance.addActionListener (this);
-	entrance.setPreferredSize (new Dimension (300, 50));
-	entrance.setBackground (buttonColour);
-	entrance.setForeground (buttonText);
-
-	card3.add (title);
-	p.add (namePmt);
-	p.add (name);
-	p2.add (choicePmt);
-	p2.add (choice);
-	p3.add (firstPmt);
-	p3.add (first);
-	card3.add (p);
-	card3.add (p2);
-	card3.add (p3);
-	card3.add (entrance);
-	p_card.add ("3", card3);
-    }
-
-
     public void gameScreen ()
-    { //TO DO: Fill this comment in
+    { //sets up the heder and the grid
 	card4 = new Panel ();
 	card4.setBackground (backgroundColour);
-	JLabel title = new JLabel ("Loikis Viking Chess");
+	JLabel title = new JLabel ("Lokis Viking Chess");
 	title.setFont (titleFont);
 	title.setForeground (titleColour);
 	Panel p2 = new Panel ();
@@ -169,7 +168,7 @@ public class GridStarter extends Applet implements ActionListener
 	p2.add (ins);
 	p2.add (turnpic);
 
-	Panel grid = new Panel (new GridLayout (row, col));
+	grid = new Panel (new GridLayout (row, col));
 	int m = 0;
 	for (int i = 0 ; i < row ; i++)
 	{
@@ -177,7 +176,7 @@ public class GridStarter extends Applet implements ActionListener
 	    {
 		if (b [i] [j] == 7)
 		{ //genrates rune border
-		    int r = (int) (Math.random () * 3) + 7;
+		    int r = (int) (Math.random () * 8) + 7;
 		    pics [m] = new JButton (createImageIcon (picStart + r + picFileType));
 		    pics [m].setPreferredSize (new Dimension (sqDimension, sqDimension));
 		    pics [m].setActionCommand (m + "");
@@ -199,7 +198,7 @@ public class GridStarter extends Applet implements ActionListener
 	    }
 	}
 	add (grid);
-	//TO DO: Fill this comment in
+	//the set up code for the bottom of the screen
 	Panel p3 = new Panel ();
 	JButton reset = new JButton ("Again");
 	reset.addActionListener (this);
@@ -215,13 +214,18 @@ public class GridStarter extends Applet implements ActionListener
 	instruct.setBackground (buttonColour);
 	instruct.setForeground (buttonText);
 	p3.add (instruct);
-	JButton settings = new JButton ("Settings");
-	settings.addActionListener (this);
-	settings.setActionCommand ("settings");
-	settings.setPreferredSize (new Dimension (100, 30));
-	settings.setBackground (buttonColour);
-	settings.setForeground (buttonText);
-	p3.add (settings);
+	save = new JButton ("Save Game");
+	save.addActionListener (this);
+	save.setActionCommand ("save");
+	save.setPreferredSize (new Dimension (100, 30));
+	save.setBackground (buttonColour);
+	save.setForeground (buttonText);
+	p3.add (save);
+
+	soundFile = getAudioClip (getDocumentBase (), "alvedon.snd");
+	//this attaches the sound file "alvedon"
+	soundFile.loop ();
+	//put the sound on repeat
 
 	card4.add (title);
 	card4.add (p2);
@@ -233,106 +237,248 @@ public class GridStarter extends Applet implements ActionListener
 
 
     public void actionPerformed (ActionEvent e)
-    { //TO DO: Fill this comment in
+    { //action prefoms for moving around sceens
 	if (e.getActionCommand ().equals ("s1"))
 	    cdLayout.show (p_card, "1");
 	else if (e.getActionCommand ().equals ("s2"))
-	    cdLayout.show (p_card, "2");
+	{
+	    if (titleVar == 0) //changes the initial pic to the title pic
+	    {
+		next.setIcon (createImageIcon ("loiki2.png"));
+		titleVar++;
+	    }
+	    else
+		cdLayout.show (p_card, "2");
+	}
 	else if (e.getActionCommand ().equals ("s3"))
 	    cdLayout.show (p_card, "3");
 	else if (e.getActionCommand ().equals ("s4"))
 	    cdLayout.show (p_card, "4");
-
-	//TO DO: Fill this comment in
-	else if (e.getActionCommand ().equals ("reset"))
-	{
-
-	}
-	else if (e.getActionCommand ().equals ("settings"))
-	{
-	    cdLayout.show (p_card, "3");
-	}
 	else if (e.getActionCommand ().equals ("instruct"))
 	{
 	    cdLayout.show (p_card, "2");
 	}
-	//TO DO: Fill this comment in
+
+	//resets the bord
+	else if (e.getActionCommand ().equals ("reset"))
+	{
+	    reset ();
+	}
+	else if (e.getActionCommand ().equals ("save"))
+	{ //saves the game to LokisSave. txt
+	    try
+	    {
+		out = new PrintWriter (new FileWriter ("LokisSave.txt"));
+		for (int i = 0 ; i < row ; i++)
+		{
+		    for (int j = 0 ; j < col ; j++)
+		    {
+			out.println (b [i] [j]);
+			//System.out.println ("test");
+		    }
+		}
+		out.println (turn);
+		//save ("LokisSave.txt");
+		out.close ();
+	    }
+	    catch (IOException g)
+	    {
+		System.out.println ("Error opening file " + g);
+	    }
+	}
+	else if (e.getActionCommand ().equals ("clearSave"))
+	{ //removes the save fial so that the player can start fresh
+	    File save = new File ("LokisSave.txt");
+	    save.delete ();
+	    reset ();
+	}
+	//handuls the slecting and movement of peces
 	else
 	{
 	    int n = Integer.parseInt (e.getActionCommand ());
 	    int x = n / col;
 	    int y = n % col;
-	    if (turn == 0)
+	    if (turn == 2)
 	    {
-		if (b [x] [y] == 2)
+		if (b [x] [y] == 2) //show movment
 		{
 		    clear (x, y);
-		    moveselection (x, y);
+		    moveselection (x, y, false);
+		    kingmove = false;
 
 		}
-		else if (b [x] [y] == 1)
+		else if (b [x] [y] == 1) //move stander peice
 		{
 		    move (x, y, 2);
-		    turn = 1;
+		    turn = 3;
 		    turnpic.setIcon (createImageIcon ("c3.png"));
 		    clear (x, y);
 		    capture (x, y, 2, 3);
 		}
+		else if (b [x] [y] == 4) //move king
+		{
+		    clear (x, y);
+		    moveselection (x, y, true);
+		    kingmove = true;
+		}
+		else if (b [x] [y] == 6)
+		{
 
+		    //Show a warning dialog with the options OK, CANCEL, title 'Warning',
+		    // and message 'Click OK to continue':
+		    Object[] options = {"reset bord", "view the bord"};
+		    int ans = JOptionPane.showOptionDialog (null, "white has escaped the bord they win", "white win",
+			    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+			    null, options, options [0]);
+		    if (ans == 0)
+			reset ();
+			//makes it so the bord can not be edited or saveed after win 
+		    grid.setEnabled (false);
+		    save.setEnabled (false);
+		    kingmove = true;
+		    move (x, y, 2);
+		    clear (x, y);
+		}
 
 	    }
-	    if (turn == 1)
+	    if (turn == 3)
 	    {
 		if (b [x] [y] == 3)
 		{
 		    clear (x, y);
-		    moveselection (x, y);
+		    moveselection (x, y, false);
 		}
 		else if (b [x] [y] == 1)
 		{
 		    move (x, y, 3);
-		    turn = 0;
+		    turn = 2;
 		    turnpic.setIcon (createImageIcon ("c2.png"));
 		    clear (x, y);
 		    capture (x, y, 3, 2);
 		}
-
 	    }
 	}
     }
 
 
-    public void capture (int x, int y, int team, int Oteam)
-    { //there has to be a beter way
-	//horazontal
-	if (b [x - 1] [y] == Oteam && b [x - 2] [y] == team)
-	    b [x - 1] [y] = 0;
-	else if (b [x + 1] [y] == Oteam && b [x + 2] [y] == team)
-	    b [x + 1] [y] = 0;
-	if (b [x - 1] [y] == Oteam && b [x + 1] [y] == Oteam)
-	    b [x] [y] = 0;
-	//verdical
-	if (b [x] [y - 1] == Oteam && b [x] [y - 2] == team)
-	    b [x] [y - 1] = 0;
-	else if (b [x] [y + 1] == Oteam && b [x] [y + 2] == team)
-	    b [x] [y + 1] = 0;
-	if (b [x] [y - 1] == Oteam && b [x] [y + 1] == Oteam)
-	    b [x] [y] = 0;
-	    //king
+    public void reset ()
+    { //resets the bord
+	for (int i = 0 ; i < row ; i++)
+	{
+	    for (int j = 0 ; j < col ; j++)
+	    {
+		b [i] [j] = br [i] [j];
+	    }
+	}
+	grid.setEnabled (true);
+	save.setEnabled (true);
 	redraw ();
     }
 
 
+    //handuls the cheking for capshers
+    public void capture (int x, int y, int team, int Oteam)
+    { //there has to be a beter way. there is probly not going to fix it thou
+	//verdical
+	if (b [x - 1] [y] == Oteam && (b [x - 2] [y] == team || b [x - 2] [y] == 5))
+	{
+	    //System.out.println ("up");
+	    b [x - 1] [y] = 0;
+	}
+
+
+	//king clause up
+	else if (team == 2 && b [x - 1] [y] == Oteam && b [x - 2] [y] == 4)
+	    b [x - 1] [y] = 0;
+	else if (b [x + 1] [y] == Oteam && (b [x + 2] [y] == team || b [x + 2] [y] == 5))
+	{
+	    //System.out.println ("down");
+	    b [x + 1] [y] = 0;
+	}
+
+
+	//king clause down
+	else if (team == 2 && b [x + 1] [y] == Oteam && b [x + 2] [y] == 4)
+	    b [x - 1] [y] = 0;
+
+	//horazontal
+	if (b [x] [y - 1] == Oteam && (b [x] [y - 2] == team || b [x] [y - 2] == 5))
+	{
+	    //System.out.println ("left");
+	    b [x] [y - 1] = 0;
+	}
+
+
+	//king clause left
+	else if (team == 2 && b [x] [y - 1] == Oteam && b [x] [y - 2] == 4)
+	    b [x] [y - 1] = 0;
+	else if (b [x] [y + 1] == Oteam && (b [x] [y + 2] == team || b [x] [y + 2] == 5))
+	{
+	    //System.out.println ("right");
+	    b [x] [y + 1] = 0;
+	}
+
+
+	//king clause right
+	else if (team == 2 && b [x] [y + 1] == Oteam && b [x] [y + 2] == 4)
+	    b [x] [y - 1] = 0;
+
+	//king
+	if (team == 3)
+	{ //really proud of this code
+	    kingTake (x, y, -1, 0, -2, 0, -1, -1, 1, -1);  //under king
+	    kingTake (x, y, 1, 0, 2, 0, 1, 1, -1, 1);  //above king
+	    kingTake (x, y, 0, -1, 0, -2, -1, -1, 1, -1);  //right of king
+	    kingTake (x, y, 0, 1, 0, 2, 1, 1, -1, 1); //left of king
+	}
+
+
+	redraw ();
+    }
+
+
+    public void kingTake (int x, int y, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+    { //genrlization for king capshers
+	if (b [x + x1] [y + y1] == 4)
+	{
+	    if (b [x + x2] [y + y2] == 3 && b [x + x3] [y + y3] == 3 && b [x + x4] [y + y4] == 3)
+	    {
+		b [x + x1] [y + y1] = 0;
+		Object[] options = {"reset bord", "view bord"};
+		int ans = JOptionPane.showOptionDialog (null, "red has killed the king and won the game", "red win",
+			JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+			null, options, options [0]);
+		if (ans == 0)
+		    reset ();
+		    //makes it so the bord can not be edited or saveed after win 
+		grid.setEnabled (false);
+		save.setEnabled (false);
+		clear (x, y);
+	    }
+	}
+    }
+
+
     public void move (int x, int y, int team)
-    {
+    { //moves the peises
+
+	if (kingmove == false)
+	    b [x] [y] = team;
+	else
+	{
+	    b [x] [y] = 4;
+	    kingmove = false;
+	}
+
+
 	b [px] [py] = 0;
-	b [x] [y] = team;
+	soundEffect ("pieceMoveCut");
 	redraw ();
     }
 
 
     public void clear (int x, int y)
-    {
+    { //removes move tials
 	for (int i = 0 ; i < row ; i++)
 	{
 	    for (int j = 0 ; j < col ; j++)
@@ -341,52 +487,71 @@ public class GridStarter extends Applet implements ActionListener
 		    b [i] [j] = 0;
 	    }
 	}
+
+
 	redraw ();
     }
 
 
-    public void moveselection (int x, int y)
-    {
+    public void moveselection (int x, int y, boolean king)
+    { //creates move tials for relevent pieces
 	//up
 	int cx1 = x - 1;
-	while (cx1 >= 0 && (b [cx1] [y] == 0 || b [cx1] [y] == 2))
+	while (cx1 >= 0 && (b [cx1] [y] == 0 || b [cx1] [y] == 5))
 	{
-	if(b [cx1] [y] == 0)
-	    b [cx1] [y] = 1;
-	    /*else 
-	    b [cx1] [y] = -1;*/
+	    if (b [cx1] [y] == 0)
+		b [cx1] [y] = 1;
+	    else if (king == true && b [cx1] [y] == 5)
+		b [cx1] [y] = 6;
 	    cx1--;
 	}
+
+
 	//down
 	int cx2 = x + 1;
-	while (cx2 < row && b [cx2] [y] == 0)
+	while (cx2 < row && b [cx2] [y] == 0 || b [cx2] [y] == 5)
 	{
-	    b [cx2] [y] = 1;
+	    if (b [cx2] [y] == 0)
+		b [cx2] [y] = 1;
+	    else if (king == true && b [cx2] [y] == 5)
+		b [cx2] [y] = 6;
 	    cx2++;
 	}
+
+
 	//right
 	int cy1 = y + 1;
-	while (cy1 < col && b [x] [cy1] == 0)
+	while (cy1 < col && b [x] [cy1] == 0 || b [x] [cy1] == 5)
 	{
-	    b [x] [cy1] = 1;
+	    if (b [x] [cy1] == 0)
+		b [x] [cy1] = 1;
+	    else if (king == true && b [x] [cy1] == 5)
+		b [x] [cy1] = 6;
 	    cy1++;
 	}
+
+
 	//left
 	int cy2 = y - 1;
-	while (cy2 >= 0 && b [x] [cy2] == 0)
+	while (cy2 >= 0 && b [x] [cy2] == 0 || b [x] [cy2] == 5)
 	{
-	    b [x] [cy2] = 1;
+	    if (b [x] [cy2] == 0)
+		b [x] [cy2] = 1;
+	    else if (king == true && b [x] [cy2] == 5)
+		b [x] [cy2] = 6;
 	    cy2--;
 	}
-	
+
+
 	px = x;
 	py = y;
+	soundEffect ("pieceSelectCut"); // make so can not be spamed
 	redraw ();
     }
 
 
     public void redraw ()
-    {
+    { //updates the screen to mach the aray
 	int m = 0;
 	for (int i = 0 ; i < row ; i++)
 	{
@@ -394,13 +559,45 @@ public class GridStarter extends Applet implements ActionListener
 	    {
 		if (!(b [i] [j] == 7))
 		{
-		pics [m].setIcon (createImageIcon ("c" + b [i] [j] + ".png"));
+		    pics [m].setIcon (createImageIcon ("c" + b [i] [j] + ".png"));
 		}
 		m++;
 	    }
 	}
     }
 
+
+    //For a single sound effect
+    public void soundEffect (String filepath)
+    {
+	//initialize objects
+	//declare sound effect player
+	AudioPlayer SEP = AudioPlayer.player;
+	//declare sound effect
+	AudioStream SE;
+	//declare audio data
+	AudioData MA;
+	//set as single run (NOT LOOP)
+	AudioDataStream play = null;
+
+	try
+	{
+	    //set file
+	    SE = new AudioStream (new FileInputStream (filepath + ".wav"));
+	    MA = SE.getData ();
+	    //set data to play once (NOT LOOP)
+	    play = new AudioDataStream (MA);
+	}
+
+
+	catch (IOException error)
+	{
+	    System.out.println ("Audio - File not found.");
+	}
+
+
+	SEP.start (play);
+    }
 
 
     protected static ImageIcon createImageIcon (String path)
