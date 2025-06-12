@@ -299,7 +299,7 @@ public class GridStarter extends Applet implements ActionListener
 	    int x = n / col;
 	    int y = n % col;
 	    if (turn == 2)
-	    {
+	    {//player 1
 		if (b [x] [y] == 2) //show movment
 		{
 		    clear (x, y);
@@ -340,15 +340,15 @@ public class GridStarter extends Applet implements ActionListener
 		    clear (x, y);
 		}
 
-	    }
+	    }//player 2 turn 
 	    if (turn == 3)
 	    {
-		if (b [x] [y] == 3)
+		if (b [x] [y] == 3)//select piece
 		{
 		    clear (x, y);
 		    moveselection (x, y, false);
 		}
-		else if (b [x] [y] == 1)
+		else if (b [x] [y] == 1)//move piece 
 		{
 		    move (x, y, 3);
 		    turn = 2;
